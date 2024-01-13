@@ -1,0 +1,301 @@
+<!-- 
+% Author :             Sam Jian Shen 
+% Class :              TS4
+% Assessment Title :   Subway Sandwich Interactor 
+% Assignment Index :   Lab 3, Assignment - 3 
+% Module Code :        CZ3005
+% Version :            0.1 
+-->
+<html> 
+    <!-- import cascading style sheet(css) files -->
+    <link rel="stylesheet" href="/apps/css/layout.css">
+    <link rel="stylesheet" href="/apps/css/frame.css">
+    <link rel="stylesheet" href="/apps/css/style.css">
+    <head>
+        <!-- import external libraries -->
+        <script src="/apps/external/jquery/jquery-2.0.3.min.js"></script>
+        <script src="/pengine/pengines.js"></script>
+        <script type="text/x-prolog">
+            % ------------------------------------------------------------------------------------------------
+            % Assumption :
+            % - All (food name/element of the list) is unique.
+            % ------------------------------------------------------------------------------------------------
+            % ------------------------------------------------------------------------------------------------
+            % Initialization
+            % ------------------------------------------------------------------------------------------------
+
+            % Hide warning in SSI_Run.pl
+            :- style_check(-discontiguous).
+
+            % Declare dynamic memory
+            :- dynamic selected/2.
+            :- dynamic custom/2.
+            :- dynamic meal/2.
+            :- dynamic side/1.
+            :- dynamic topup/1.
+            :- dynamic invoice/14.
+            :- dynamic invoice/8.
+
+            % Clear previous assertz dynamic facts (if any)
+            :- retractall(selected(_,_)).
+            :- retractall(invoice(_)).
+            
+            % ------------------------------------------------------------------------------------------------
+            % Queries and Rules
+            % - The User that select 'vegan' as perferences must not be able to choose meat option
+            % - The User that select 'healthy' as perferences must have reduce specific options (like bacon for example)
+            % - The User that select 'none' must display all possible option given from the database
+            % - The User that select not('none') as perferences must have reduce specific options compare to 'none' perferences
+            % ------------------------------------------------------------------------------------------------ 
+            run :-
+                pengine_input(start, X),         % call pengine to SSI_prompt.js for input  (Query)
+                X = start,
+                options(order).
+            % All various options user can choose base on developing facts and options choosen by user
+            options(order) :- 
+                not(selected(_,order)),                 % if order selection does not exist
+                order(X),                               % get facts from order
+                term_to_atom(X, Prompt),                % convert term to atom to prompt user
+                pengine_input(Prompt, AnswerO),         % call pengine to SSI_prompt.js for input  (Query)
+                pengine_output(AnswerO),                % call pengine to SSI_prompt.js for output (Queries' answer)
+                assertz(selected(AnswerO,order)),       % Add queries answer as selected facts
+                options(perferences).                   % go to next options to choose
+            
+            % User perferences such as vegan or healthy or none
+            options(perferences) :- 
+                selected(_,order),
+                perferences(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerP),
+                pengine_output(AnswerP), 
+                assertz(selected(AnswerP,perferences)),
+                filter(AnswerP),                        % learn and change facts base on user perferences
+                selected(Z,order),                      % go to next options base on user order selection option
+                options(Z).
+
+            options(meal):-                             
+                selected(_,perferences),
+                meal(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerM), 
+                pengine_output(AnswerM),
+                assertz(selected(AnswerM,meal)),
+                options(AnswerM).
+
+            options(Z):- 
+                selected(_,meal),
+                meal(Z,L),
+                term_to_atom(L, Prompt),
+                pengine_input(Prompt, AnswerB), 
+                pengine_output(AnswerB),
+                assertz(selected(AnswerB,Z)),
+                options(topup).
+
+            options(custom) :- options(bread).           % 1st options of customize sandwich is bread
+
+            options(bread) :- 
+                selected(custom,order),
+                custom(bread,L),
+                term_to_atom(L, Prompt),
+                pengine_input(Prompt, AnswerB), 
+                pengine_output(AnswerB),
+                assertz(selected(AnswerB,bread)),
+                selected(A,perferences),
+                (A = vegan -> (assertz(selected(none,meat)),   % If user select vegan as option, update fact on meat option and move on to salad option
+                options(salad)); 
+                options(meat)).    
+
+            options(meat) :-  % custom options
+                selected(custom,order),
+                custom(meat,L),
+                term_to_atom(L, Prompt),
+                pengine_input(Prompt, AnswerB), 
+                pengine_output(AnswerB),
+                assertz(selected(AnswerB,meat)),
+                options(salad).
+
+            options(salad) :-  % custom options
+                selected(custom,order),
+                custom(salad,L),
+                term_to_atom(L, Prompt),
+                pengine_input(Prompt, AnswerB), 
+                pengine_output(AnswerB),
+                assertz(selected(AnswerB,salad)),
+                options(sauce).
+
+            options(sauce) :-  % custom options
+                selected(custom,order),
+                custom(sauce,L),
+                term_to_atom(L, Prompt),
+                pengine_input(Prompt, AnswerB), 
+                pengine_output(AnswerB),
+                assertz(selected(AnswerB,sauce)),
+                options(topup).
+
+            options(topup):-
+                (selected(_,promotion);selected(_,classic);selected(_,sauce)),      % user has selected either one of promotion,classic and sauce option, then top up option is available
+                topup(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerT), 
+                pengine_output(AnswerT),
+                assertz(selected(AnswerT,topup)),
+                options(side).
+
+            options(side):-
+                selected(_,topup),
+                side(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerT), 
+                assertz(selected(AnswerT,side)),
+                listSelectedOption,                               % Calculate the price and get all the names of the facts to generate invoice later
+                invoice(L),                                       % get invoice facts
+                pengine_output(L),                                % invoke .js to print the invoice for user to see
+                options(confirmRespond).                          % go to next option for confirmation
+            
+            options(confirmRespond):- 
+                selected(_,side),
+                confirmRespond(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerT), 
+                pengine_output(AnswerT),
+                assertz(selected(AnswerT,confirmRespond)),
+                (AnswerT = yes -> options(payment); false).        % go to payment if user choose yes to confirmation or else return false will restart the query
+
+            options(payment):-
+                selected(_,confirmRespond),
+                payment(X),
+                term_to_atom(X, Prompt),
+                pengine_input(Prompt, AnswerT), 
+                pengine_output(AnswerT),
+                assertz(selected(AnswerT,payment)),
+                options(end).
+
+            options(end):- selected(_,payment),
+                 retractall(selected(_,_)),                        % clear all selected and invoice
+                 retractall(invoice(_)),
+                 sleep(1), true.                                         % delay for 1 seconds to show encrption processing
+
+            % Update new facts base on user perferences options
+            filter(none).                               % no perferences is choose then is true
+            filter(X):-                                 % perferences other than none will update facts accordingly
+                perferences(X,L), 
+                custom(bread,L1),
+                custom(meat,L2),
+                custom(salad,L3),
+                custom(sauce,L4),
+                meal(classic,L5),
+                meal(promotion,L6),
+                side(L7),
+
+                intersection(L1, L, NL1),               % compare old list and perferences list , only element that exist in both list will be insert into new list
+                intersection(L2, L, NL2), 
+                intersection(L3, L, NL3), 
+                intersection(L4, L, NL4),
+                intersection(L5, L, NL5), 
+                intersection(L6, L, NL6), 
+                intersection(L7, L, NL7), 
+
+                retractall(custom(_,_)),                % remove old facts such as custom, meal and side
+                retractall(meal(_,_)),
+                retractall(side(_)),
+
+                assertz(custom(bread,NL1)),             % learn new updated facts base on perferences
+                assertz(custom(meat,NL2)),
+                assertz(custom(salad,NL3)),
+                assertz(custom(sauce,NL4)),
+                assertz(meal(classic,NL5)),
+                assertz(meal(promotion,NL6)),
+                assertz(side(NL7)).
+
+            % Return invoice which consist of all user selection options and price and total price
+            listSelectedOption :- 
+                selected(A,order),  
+                (A = meal ->  selected(B,A); true),                                                                 % user has choose meal as option or else continue next argument
+                ((A = custom ->(selected(N1,bread),selected(N2,salad), selected(N3,sauce), selected(N4,meat)));     % user choose custom meal option and get all selected facts
+                ((B = promotion) -> (selected(N1,B), P2 is 0, P3 is 0, P4 is 0));                                   % user choose promotion meal option and get all selected facts and set known price base on fact
+                ((B = classic) -> (selected(N1,B), P2 is 0, P3 is 0, P4 is 0))),                                    % user choose classic meal option and get all selected facts and set known price base on fact
+                selected(N5,topup),                                                                                 % get topup option fact
+                selected(N6,side),                                                                                  % get side option fact
+                price(N1,P1),                                                                                       % 1st component price ((classic/promotion)/custom(bread)) from price facts
+                (N5 = normal -> (P5 is 0);price(N5,P5)),                                                            % 5th component price (topup) from price facts
+                (N6 = none -> (P6 is 0);price(N6,P6)),                                                              % 6th component price (side) from price facts
+                (A = custom -> (                                                                                    % if user choose custom option
+                    ((N2 = none -> P2 is 0 ); price(N2,P2)),                                                        % 2nd component price (salad) from price facts
+                    ((N3 = none -> P3 is 0 ); price(N3,P3)),                                                        % 3rd component price (sauce) from price facts
+                    ((N4 = none -> P4 is 0 ); price(N4,P4)));true),                                                 % 4th component price (meat) from price facts
+                PA is P1+P2,                                                                                        % sum up the total price base on all components
+                PB is PA+P3,
+                PC is PB+P4,
+                PD is PC+P5,
+                P  is PD+P6,
+                ((A = custom -> (assertz(invoice([N1,P1,N2,P2,N3,P3,N4,P4,N5,P5,N6,P6,total,P]))));                 % learn invoice facts base on all components name and price and depend on meal or custom options is true
+                (assertz(invoice([N1,P1,N5,P5,N6,P6,total,P])))).
+
+            % ------------------------------------------------------------------------------------------------
+            % Facts
+            % ------------------------------------------------------------------------------------------------
+            order([meal,custom]).
+            
+            custom(bread, [italian, wheat, honey_oat]).
+            custom(meat, [bacon, chicken_breast, tuna,none]).
+            custom(salad, [cucumbers, tomatoes, red_onions,none]).
+            custom(sauce, [chipotle_southwest, honey_mustard, savoury_caesar,none]).
+
+            meal([promotion,classic]).
+            meal(promotion, [cold_cut_trio, ex_italian_BMT, veggie_delite]).
+            meal(classic, [chicken_bacon_ranch, chicken_ham, veggie_patty]).
+
+            topup([extreme,normal]).
+            side([cookies, hashbrowns,none]).
+            confirmRespond([yes,no]).
+            payment([cash,credit_card]).
+
+            perferences([vegan,healthy,none]).
+            perferences(healthy, [cold_cut_trio, veggie_delite, chicken_ham, veggie_patty, italian, chicken_breast, tuna, cucumbers, tomatoes, savoury_caesar, cookies,none]).
+            perferences(vegan, [veggie_delite, veggie_patty, italian, wheat, cucumbers, tomatoes, red_onions, chipotle_southwest, honey_mustard, cookies,none]).
+
+            price(cold_cut_trio, 6.5).
+            price(ex_italian_BMT, 8).
+            price(veggie_delite, 6).
+            price(chicken_bacon_ranch, 6.5).
+            price(chicken_ham, 6).
+            price(veggie_patty, 5.5).
+            price(italian, 2.5).
+            price(wheat, 2.5).
+            price(honey_oat, 2.5).
+            price(bacon, 2).
+            price(chicken_breast, 1.7).
+            price(tuna, 1.2).
+            price(chipotle_southwest, 0.5).
+            price(honey_mustard, 0.5).
+            price(savoury_caesar, 0.5).
+            price(cucumbers, 0.8).
+            price(tomatoes, 1).
+            price(red_onions, 0.9).
+            price(extreme, 3).
+            price(cookies, 1).
+            price(hashbrowns, 1.2).
+            
+        </script>
+        <!--Interactive interface content from SSI_prompt.js-->
+        <script src="/apps/js/SSI_prompt.js"></script>  
+    </head>
+    <body>
+        <!--Static interface content-->
+        <div class = container >
+            <div><a href="/"><img class = logo src="/apps/assets/[Logo]/Logo.PNG" alt="Subway_Logo"  ></a></div>    <!--logo image-->
+            <div id="msg"></div>   
+            <div id="result"></div>
+            <div id="resultD"></div>                                                                                <!--prompt message-->
+            <div class = frameP >                                                                                   <!--container for images-->
+                <div id = "fp"></div>                                                                               <!--options selection images-->    
+            </div>
+            <div class = frameT>                                                                                    <!--container for label-->
+                 <div id="p"></div>                                                                                 <!--options selection label-->
+            </div>
+        </div>
+            <div id="suc"></div>                                                                                    <!--prompt return true-->
+            <div id="op"></div>                                                                                     <!--prompt output respond-->
+            <div id="err"></div>                                                                                    <!--prompt return error-->
+    </body>
+</html>

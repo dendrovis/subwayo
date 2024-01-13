@@ -1,0 +1,74 @@
+/*
+% Author :             Sam Jian Shen 
+% Class :              TS4
+% Assessment Title :   Subway Sandwich Interactor 
+% Assignment Index :   Lab 3, Assignment - 3 
+% Module Code :        CZ3005
+% Version :            0.1 
+*/
+/*Create various containers for content (column format)*/
+.container{
+    text-align : center; 
+}
+.two1{
+    width:50%;
+    height: 5%;
+    float : left;
+}
+.two2{
+    width:50%;
+    height: 5%;
+    float : right;
+}
+div:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+.three1{
+    width:33.3%;
+    height: 5%;
+    float : left;
+}
+.three2{
+    width:33.3%;
+    height: 5%;
+    float : left;
+}
+.three3{
+    width:33.3%;
+    height: 5%;
+    float : left;
+}
+div:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+.four1{
+    width:25%;
+    height: 5%;
+    float : left;
+}
+.four2{
+    width:25%;
+    height: 5%;
+    float : left;
+}
+.four3{
+    width:25%;
+    height: 5%;
+    float : left;
+}
+.four4{
+    width:25%;
+    height: 5%;
+    float : left;
+}
+div:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+
+

@@ -1,0 +1,55 @@
+{
+    "author"           :  "Sam Jian Shen",
+    "class"            :  "TS4",
+    "assessment_title" :  "Subway Sandwich Interactor", 
+    "assignment_index" :  "Lab 3, Assignment - 3", 
+    "module_code"      :  "CZ3005",
+    "version"          :  "0.1", 
+
+    "meal" : {
+        "promotion" : {
+            "name" : ["Cold Cut Trio","Ex-Italian B.M.T","Veggie Delite"],
+            "price" : [6.5,8,6]
+        },
+
+        "classic" : {
+            "name" : ["Chicken Bacon Ranch","Chicken Ham","Veggie Patty"],
+            "price" : [6.5,6,5.5]
+        }
+    },
+
+    "custom" : {
+        "sandwich" : {
+            "name" : ["Italian","Wheat","Honey Oat"],
+            "price" : [2.5,2.5,2.5]
+        },
+        "meat" : {
+            "name" : ["Bacon","Chicken Breast","Tuna"],
+            "price" : [2,1.7,1.2]
+        },
+        "salad" : {
+            "name" : ["Cucumbers","Tomatoes","Red Onions"],
+            "price" : [0.8,1,0.9]
+        },
+        "sauce" : {
+            "name" : ["Chipotle Southwest","Honey Mustard","Savoury Caesar"],
+            "price" : [0.5,0.5,0.5]
+        }
+    },
+
+    "top_up" : {
+        "name" : ["Extreme"],
+        "price" : [3]
+    },
+
+    "side" : {
+        "name" : ["Cookies","Hashbrowns"],
+        "price" : [1,1.2]
+    },
+
+    "perferences" : {
+        "healthy" : ["Cold Cut Trio","Veggie Delite","Chicken Ham","Veggie Patty","Italian","Chicken Breast","Tuna","Cucumbers","Tomatoes","Savoury Caesar","Cookies"],
+        "vegan" : ["Veggie Delite","Veggie Patty","Italian","Wheat","Cucumbers","Tomatoes","Red Onions","Chipotle Southwest","Honey Mustard","Cookies"],
+        "none" : []
+    }
+}

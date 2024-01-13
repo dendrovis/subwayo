@@ -1,0 +1,116 @@
+/*
+% Author :             Sam Jian Shen 
+% Class :              TS4
+% Assessment Title :   Subway Sandwich Interactor 
+% Assignment Index :   Lab 3, Assignment - 3 
+% Module Code :        CZ3005
+% Version :            0.1 
+*/
+/*Adjust the alignment of output text*/
+.one{
+    text-transform: capitalize; 
+}
+.two1_S{
+    margin-left : 54%;
+    text-transform: capitalize;   
+}
+.two2_S{
+    margin-right : 54%;
+    text-transform: capitalize;
+}
+.three1_S{
+    margin-left : 58%;
+    text-transform: capitalize;  
+}
+.three2_S{
+    text-transform: capitalize;  
+}
+.three3_S{
+    margin-right : 58%;
+    text-transform: capitalize;
+}
+.four1_S{
+    margin-left : 14%;
+    text-transform: capitalize;
+}
+.four2_S{
+    margin-left : 5%;
+    text-transform: capitalize;
+}
+.four3_S{
+    margin-right : 5%;
+    text-transform: capitalize;
+}
+.four4_S{
+    margin-right : 14%;
+    text-transform: capitalize;
+}
+.result{
+    text-transform: capitalize;
+    font-size: 1vw;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    text-align: left;
+    margin-left: 30%;
+    margin-right: 30%;
+    border-bottom: solid grey 2px;
+}
+.result_last{
+    
+    text-transform: capitalize;
+    border-top: solid black 5px;
+    border-bottom: solid black 5px;
+    text-align: left;
+    margin-left: 30%;
+    margin-right: 30%;
+    font-size: 1.5vw;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+}
+.leftbtn{
+    
+    background-color:white;
+    border-radius: 25em;
+    border : solid black 2px;
+    height:3vw;
+    width: 7vw;
+    margin-right:3%;
+    margin-top: 2%;
+    font-size: 1.5vw;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    transition-duration: 0.3s; 
+}
+.leftbtn:hover{
+    background-color: greenyellow;
+    transition-duration: 0.3s;
+}
+.rightbtn{
+    background-color:white;
+    border-radius: 25em;
+    border : solid black 2px;
+    height:3vw;
+    width: 7vw;
+    margin-left:3%;
+    margin-top: 2%;
+    font-size: 1.5vw;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    transition-duration: 0.3s;
+}
+.rightbtn:hover{
+    background-color: greenyellow;
+    transition-duration: 0.3s;
+}
+.inibtn{
+    background-color:white;
+    color: green;
+    border-radius: 25em;
+    border : solid green 0.2vw;
+    height:10vw;
+    width: 10vw;
+    margin-top: 10%;
+    font-size: 2vw;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    transition-duration: 0.3s;
+}
+.inibtn:hover{
+    background-color: yellow;
+    transition-duration: 0.3s;
+}
